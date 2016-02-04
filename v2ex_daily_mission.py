@@ -1,8 +1,14 @@
 #!/usr/bin/python
 # -*- coding : utf-8 -*-
+import sys
+import time
+
 from bs4 import BeautifulSoup
 import requests
 
+ 
+currentTime = time.strftime("%Y-%m-%d %a %H:%M:%S", time.localtime())
+print ("Time: " + currentTime)
 
 username = ''   # your v2ex username
 password = ''    # your v2ex password
@@ -30,7 +36,6 @@ def make_soup(url, tag, name):
     return soup_result
 
 once_vaule = make_soup(login_url, 'name', 'once')['value']
-print(once_vaule)
 
 post_info = {
     'u': username,
@@ -39,11 +44,16 @@ post_info = {
     'next': '/'
 }
 
-resp = v2ex_session.post(login_url, data=post_info,
-                         headers=headers, verify=True)
+resp = v2ex_session.post(login_url, data=post_info, headers=headers, verify=True)
+haveSignupHref = make_soup(home_page, 'href', '/signup')
+
+if not haveSignupHref:
+    print ("login successfully! once_vaule is " + once_vaule)
+else:
+    print ("fail to login!")
+    sys.exit(0)
 
 short_url = make_soup(mission_url, 'class', 'super normal button')['onclick']
-
 
 first_quote = short_url.find("'")
 last_quote = short_url.find("'", first_quote+1)
@@ -51,8 +61,11 @@ final_url = home_page + short_url[first_quote+1:last_quote]
 
 page = v2ex_session.get(final_url, headers=headers, verify=True).content
 
-suceessful = make_soup(mission_url, 'class', 'fa fa-ok-sign')
-if suceessful:
-    print ("Sucessful.")
+receivedReward = make_soup(mission_url, 'class', 'fa fa-ok-sign')
+if final_url.endswith('balance'):
+    print ("Already redeemed!")
+elif reveicedReward:
+    print ("Successful.")
 else:
     print ("Something wrong.")
+    print ("Final Url is " + final_url)
