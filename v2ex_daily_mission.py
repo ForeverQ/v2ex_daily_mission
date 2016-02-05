@@ -64,7 +64,7 @@ page = v2ex_session.get(final_url, headers=headers, verify=True).content
 receivedReward = make_soup(mission_url, 'class', 'fa fa-ok-sign')
 if final_url.endswith('balance'):
     print ("Already redeemed!")
-elif reveicedReward:
+elif receivedReward:
     print ("Successful.")
 else:
     print ("Something wrong.")
